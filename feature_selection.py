@@ -7,7 +7,7 @@ predicted_class = ['dementia_risk']
 feature_classes = list(set(features) - set(predicted_class))
 X = data_set[feature_classes].values  # independent columns
 y = data_set[predicted_class].values  # target column i.e risk
-# apply SelectKBest class to extract top 10 best features
+# apply SelectKBest class to extract top best features
 bestfeatures = SelectKBest(score_func=f_classif, k='all')
 fit = bestfeatures.fit(X, y.ravel())
 dfscores = pd.DataFrame(fit.scores_)
