@@ -9,7 +9,7 @@ from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.metrics import roc_curve, auc
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold, RandomizedSearchCV
 
 
 def plot_confusion_matrix(y_test, model_test):
@@ -29,6 +29,12 @@ def plot_confusion_matrix(y_test, model_test):
         for j in range(2):
             plt.text(j, i, str(s[i][j]) + " = " + str(cm[i][j]))
     plt.savefig('ConfusionMatrix.png', bbox_inches='tight')
+    print("\nConfusion Matrix: ", cm)
+    total = sum(sum(cm))
+    specificity = cm[0, 0]/(cm[0, 0]+cm[0, 1])
+    sensitivity = cm[1, 1] / (cm[1, 0] + cm[1, 1])
+    print("\nSensitivity: ", sensitivity)
+    print("\nSpecificity: ", specificity)
     plt.show()
 
 
@@ -164,6 +170,19 @@ labels = {0: "Low", 1: "High"}
 predictions = [labels[k] for k in y_pred]
 actual = [labels[k] for k in y_test.flatten()]
 
+feature_importances = pd.DataFrame(classifier.feature_importances_, index=feature_classes,
+                                   columns=['Importance']).sort_values('Importance', ascending=False)
+print(feature_importances)
+
+feature_importances.nlargest(13,'Importance').plot(kind='barh')
+plt.gca().invert_yaxis()
+plt.title('Feature Importances')
+plt.xlabel('Relative Importance')
+plt.ylabel("Features")
+plt.title("Feature Importance of Random Forest Model")
+plt.savefig('./Plots/wrt_MMSE/Feature_Import.png', bbox_inches='tight')
+plt.show()
+
 print("\n\nPredicted Class:")
 print(count_freq(y_pred))
 print("\n\nActual Class:")
@@ -173,9 +192,4 @@ print(pd.crosstab(np.array(predictions), np.array(actual), rownames=['Predicted 
 report_performance(pipeline)
 accuracy(pipeline)
 roc_curves(pipeline)
-
-feature_importances = pd.DataFrame(classifier.feature_importances_, index=feature_classes,
-                                   columns=['Importance']).sort_values('Importance', ascending=False)
-print(feature_importances)
-
-joblib.dump(classifier, 'random_forest_model.pkl')
+# joblib.dump(classifier, 'random_forest_model.pkl')

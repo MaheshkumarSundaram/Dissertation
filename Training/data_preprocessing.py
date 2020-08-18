@@ -12,7 +12,6 @@ def mmse_output_categorization(data):
         return 0
 
 
-
 def mmse_categorization(x):
     if 0 <= x <= 24:
         return "MMSE_High"
@@ -21,7 +20,7 @@ def mmse_categorization(x):
 
 
 def cdr_categorization(x):
-    if 1 <= x <= 3:
+    if 0.5 <= x <= 3:
         return "CDR_High"
     else:
         return "CDR_Low"
@@ -121,9 +120,8 @@ data_set.drop(['weight', 'height'], axis=1, inplace=True)
 data_set['dementia_risk'] = data_set.apply(mmse_output_categorization, axis=1)
 data_set.to_csv(output_path1, encoding='utf-8', index=False)
 data_set['family_dementia_history'] = data_set['family_dementia_history'].apply(family_dementia_history_categorization)
-data_set.drop(['mmse_total'], axis=1, inplace=True)
 print(data_set['dementia_risk'].value_counts())
-
+data_set.drop('dementia_risk', axis=1, inplace=True)
 features = list(data_set.columns)
 print(features)
 numerical_vars = data_set.select_dtypes([np.number]).columns
@@ -134,6 +132,8 @@ for var in categorical_vars:
     one_hot_df = pd.get_dummies(data_set[var])
     data_set = pd.concat([data_set, one_hot_df], axis=1)
     data_set.drop(var, axis=1, inplace=True)
-
+data_set['dementia_risk'] = data_set.apply(mmse_output_categorization, axis=1)
+data_set.drop(['mmse_total'], axis=1, inplace=True)
+print(data_set.columns)
 print(data_set.describe())
 data_set.to_csv(output_path2, encoding='utf-8', index=False)
